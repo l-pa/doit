@@ -6,4 +6,4 @@ Android todo app
 - Geolocation reminder
 - Tags
 - Subtasks
-- Sync between devices with logged account
+- Export / Import tasks
