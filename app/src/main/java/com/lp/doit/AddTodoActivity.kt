@@ -3,16 +3,17 @@ package com.lp.doit
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class AddTodoActivity : AppCompatActivity() {
+
+    private lateinit var cancelButton: Button
+    private lateinit var addButton: Button
 
     private lateinit var todoTitle: EditText
     private lateinit var todoText: EditText
     private lateinit var todoDate: EditText
     private lateinit var todoTime: EditText
-    private lateinit var todoSave: Button
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,11 +24,10 @@ class AddTodoActivity : AppCompatActivity() {
         todoText = findViewById(R.id.todoText)
         todoDate = findViewById(R.id.todoDate)
         todoTime = findViewById(R.id.todoTime)
-        todoSave = findViewById(R.id.todoSave)
 
+        todoTime.setOnClickListener {
 
-        todoSave.setOnClickListener {
-            Toast.makeText(this, "Todo", Toast.LENGTH_LONG)
         }
+
     }
 }
