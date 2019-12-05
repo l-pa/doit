@@ -1,4 +1,4 @@
-package com.lp.doit
+package com.lp.doit.data
 
 data class Todo(
     val title: String,

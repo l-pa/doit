@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:id="@+id/linearLayout2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <Button
             android:id="@+id/cancelButton"
@@ -17,125 +25,56 @@
             android:layout_weight="1"
             android:text="@android:string/cancel" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Save" />
+            android:text="Save"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Button" />
+
     </LinearLayout>
 
     <ScrollView
+        android:id="@+id/scrollView3"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@android:dimen/notification_large_icon_height"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="parent">
+            app:layout_constraintTop_toBottomOf="parent"
+            tools:layout_editor_absoluteX="24dp">
 
-            <EditText
-                android:id="@+id/positionEditText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="351dp"
-                android:ems="10"
-                android:hint="Position"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <EditText
-                android:id="@+id/todoText"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="33dp"
-                android:hint="Todo description"
-                app:layout_constraintBottom_toTopOf="@+id/guideline2"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todoTitle" />
-
-            <EditText
+            <Button
                 android:id="@+id/todoDate"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="28dp"
                 android:ems="10"
-                android:inputType="date"
-                app:layout_constraintBottom_toTopOf="@+id/subTasks"
-                app:layout_constraintEnd_toStartOf="@+id/todoTime"
+                android:text="Date"
+                app:layout_constraintBottom_toTopOf="@+id/guideline6"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todoText" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="289dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_end="89dp" />
-
-            <EditText
-                android:id="@+id/todoTime"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:ems="10"
-                android:inputType="time"
-                app:layout_constraintBottom_toTopOf="@+id/subTasks"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todoText"
-                app:layout_constraintVertical_bias="0.485" />
+                app:layout_constraintTop_toTopOf="@+id/guideline5"
+                app:layout_constraintVertical_bias="0.0" />
 
             <Button
                 android:id="@+id/addNotificationButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:gravity="start"
                 android:text="Add notifications"
                 android:textColor="#0f0f0f"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/positionEditText" />
-
-            <Button
-                android:id="@+id/colorButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:text="Color"
-                android:textColor="#0f0f0f"
-                app:layout_constraintBottom_toTopOf="@+id/tagsButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/addNotificationButton" />
-
-            <Button
-                android:id="@+id/tagsButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="28dp"
-                android:gravity="start"
-                android:text="Tags"
-                android:textColor="#0f0f0f"
-                app:layout_constraintBottom_toTopOf="@+id/attachmentButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/guideline11" />
 
             <Button
                 android:id="@+id/attachmentButton"
@@ -144,33 +83,170 @@
                 android:gravity="start"
                 android:text="Attachment"
                 android:textColor="#0f0f0f"
-                app:layout_constraintBottom_toTopOf="@+id/guideline3"
+                app:layout_constraintBottom_toTopOf="@+id/guideline14"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline13" />
 
             <EditText
                 android:id="@+id/todoTitle"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:hint="Todo name"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.242"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+            <ListView
+                android:id="@+id/notificationsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="10"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addNotificationButton">
+
+            </ListView>
+
+            <EditText
+                android:id="@+id/todoText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Todo description"
+                app:layout_constraintBottom_toTopOf="@+id/guideline5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.207"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/todoTitle" />
+
+            <EditText
+                android:id="@+id/positionEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Position"
+                app:layout_constraintBottom_toTopOf="@+id/guideline11"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline10" />
+
+            <Button
+                android:id="@+id/tagsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="20dp"
+                android:gravity="start"
+                android:text="Tags"
+                android:textColor="#0f0f0f"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline14" />
 
             <CheckBox
                 android:id="@+id/subTasks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="CheckBox"
-                app:layout_constraintBottom_toTopOf="@+id/positionEditText"
+                app:layout_constraintBottom_toTopOf="@+id/guideline10"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.501"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todoText"
-                app:layout_constraintVertical_bias="0.733" />
+                app:layout_constraintTop_toTopOf="@+id/guideline6" />
+
+            <Button
+                android:id="@+id/colorButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="start"
+                android:text="Color"
+                android:textColor="#0f0f0f"
+                app:layout_constraintBottom_toTopOf="@+id/guideline13"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline12" />
+
+            <Button
+                android:id="@+id/todoTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="28dp"
+                android:ems="10"
+                android:text="Time"
+                app:layout_constraintBottom_toTopOf="@+id/guideline6"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.581"
+                app:layout_constraintStart_toEndOf="@+id/todoDate" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="164dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="270dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="787dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="347dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="445dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="582dp"
+                app:layout_constraintTop_toTopOf="@id/notificationsList" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="653dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="725dp" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
