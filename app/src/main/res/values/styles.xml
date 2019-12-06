@@ -1,11 +1,22 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <!-- Original AppCompat attributes. -->
         <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryDark">@color/secondaryColor</item>
-        <item name="colorAccent">@color/accentColor</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorOnBackground">@color/backgroundColor</item>
+        <item name="colorError">@color/errorColor</item>
 
+
+    </style>
+
+    <style name="ActionItem">
+        <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:drawablePadding">@dimen/drawable_padding</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">@dimen/normal_padding</item>
     </style>
 </resources>

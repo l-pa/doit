@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    >
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Custom notification"
+        android:layout_marginBottom="16dp"
+        android:textSize="16dp"
+        style="@style/TextAppearance.AppCompat.Title"
+        >
+    </com.google.android.material.textview.MaterialTextView>
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/getNotificationTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Time"
+        android:layout_marginBottom="16dp"
+        android:inputType="number"
+        >
+
+    </com.google.android.material.textfield.TextInputEditText>
+    <RadioGroup
+        android:id="@+id/getNotificationRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/minutesRadio"
+        >
+
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/minutesRadio"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Minutes before">
+</com.google.android.material.radiobutton.MaterialRadioButton>
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/hoursRadio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hours before">
+    </com.google.android.material.radiobutton.MaterialRadioButton>
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/daysRadio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Days before">
+    </com.google.android.material.radiobutton.MaterialRadioButton>
+    </RadioGroup>
+
+
+</LinearLayout>

@@ -9,21 +9,20 @@ import android.widget.TimePicker
 import androidx.fragment.app.DialogFragment
 import java.util.*
 
-class TimeFragment : DialogFragment(), TimePickerDialog.OnTimeSetListener {
-    public interface TimePickerListener {
+class TimeDialog : DialogFragment(), TimePickerDialog.OnTimeSetListener {
+    interface TimePickerListener {
         fun onTimeSet(view: TimePicker?, hour: Int, minute: Int)
     }
 
     lateinit var listener: TimePickerListener
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as TimePickerListener
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         var calendar = Calendar.getInstance()
-
 
         return TimePickerDialog(
             activity,

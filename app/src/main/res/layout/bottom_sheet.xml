@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="8dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/bottomSheetBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/emptySheetBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Create some tags"
+        android:visibility="gone"
+        android:gravity="center"
+        style="@style/TextAppearance.MaterialComponents.Headline4"
+        >
+    </com.google.android.material.textview.MaterialTextView>
+</androidx.constraintlayout.widget.ConstraintLayout>
