@@ -84,6 +84,10 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
         notificationsList = findViewById(R.id.notificationsList)
         attachmentList = findViewById(R.id.attachmentList)
+
+        notificationsList.isNestedScrollingEnabled = false
+        attachmentList.isNestedScrollingEnabled = false
+
         addNotificationButton = findViewById(R.id.addNotificationButton)
         addColorButton = findViewById(R.id.colorButton)
         addTagButton = findViewById(R.id.tagsButton)
@@ -260,8 +264,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                         .setNegativeButton("Cancel", DialogInterface.OnClickListener{
                             dialog, which ->  dialog.dismiss()
                         })
-                        .setPositiveButton("Add", DialogInterface.OnClickListener{
-                            dialog, which ->  Log.i("tag", dialog.)
+                        .setPositiveButton("Add", DialogInterface.OnClickListener{dialog, which ->  
                         })
                         .show()
 
