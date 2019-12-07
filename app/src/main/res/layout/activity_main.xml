@@ -8,22 +8,39 @@
     tools:context=".MainActivity">
 
 
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/todosList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            />
+    </ScrollView>
+
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/nothingText"
         android:layout_width="281dp"
         android:layout_height="55dp"
         android:gravity="center"
         android:text="Nothing to do"
         android:textSize="36sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView2"
+        app:layout_constraintBottom_toBottomOf="@+id/nothingImage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toTopOf="@+id/imageView2"
+        app:layout_constraintStart_toStartOf="@+id/nothingImage"
+        app:layout_constraintTop_toTopOf="@+id/nothingImage"
         app:layout_constraintVertical_bias="0.869" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/nothingImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"

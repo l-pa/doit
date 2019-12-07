@@ -47,4 +47,13 @@ class TodosFile (val fileName: String, val context : Context) {
         val json = gson.toJson(target, listType)
         saveToFile(json)
     }
+
+    fun removeTodo(todo: Todo) {
+        val listType = object : TypeToken<ArrayList<Todo>?>() {}.type
+        val target: MutableList<Todo> = loadTodos()
+        target.remove(todo)
+        val gson = Gson()
+        val json = gson.toJson(target, listType)
+        saveToFile(json)
+    }
 }

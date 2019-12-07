@@ -29,7 +29,6 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
     private lateinit var scrollView: ScrollView
 
-
     private lateinit var cancelButton: Button
     private lateinit var addButton: Button
     private lateinit var addNotificationButton: Button
