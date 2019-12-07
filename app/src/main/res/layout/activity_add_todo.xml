@@ -47,11 +47,11 @@
         android:id="@+id/scrollView3"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -68,16 +68,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="28dp"
                 android:ems="10"
                 android:text="Date"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                 app:icon="@drawable/ic_date_range_black_24dp"
                 app:iconGravity="textStart"
-                app:layout_constraintBottom_toTopOf="@+id/guideline6"
+                app:layout_constraintBottom_toTopOf="@+id/positionEditText"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline5"
-                app:layout_constraintVertical_bias="0.033" />
+                app:layout_constraintTop_toBottomOf="@+id/todoTextLayout" />
 
 
             <com.google.android.material.button.MaterialButton
@@ -86,11 +84,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="64dp"
                 android:layout_marginEnd="16dp"
                 android:text="Add notifications"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline11" />
+                app:layout_constraintTop_toBottomOf="@+id/positionEditText" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/attachmentButton"
@@ -98,35 +98,77 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="7dp"
                 android:layout_marginEnd="16dp"
                 android:text="Attachment"
-                app:layout_constraintBottom_toTopOf="@+id/guideline14"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline13" />
+                app:layout_constraintTop_toBottomOf="@+id/colorButton" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/attachmentList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/attachmentButton">
+
+            </androidx.recyclerview.widget.RecyclerView>
 
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/todoTitle"
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/todoTitleLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:hint="Todo name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/todoText"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.086"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-            </com.google.android.material.textfield.TextInputEditText>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/todoTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/todoTextLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:hint="Todo description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.067"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/todoTitleLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/todoText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/notificationsList"
@@ -136,7 +178,6 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintBottom_toTopOf="@+id/colorButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -144,29 +185,20 @@
 
             </androidx.recyclerview.widget.RecyclerView>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/todoText"
-                style="@style/Widget.MaterialComponents.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Todo description"
-                app:layout_constraintBottom_toTopOf="@+id/guideline5"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.067"
-                app:layout_constraintStart_toStartOf="parent"></com.google.android.material.textfield.TextInputEditText>
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/positionEditText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="128dp"
                 android:layout_marginEnd="16dp"
                 android:ems="10"
                 android:hint="Position"
-                app:layout_constraintBottom_toTopOf="@+id/guideline11"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline10">
+                app:layout_constraintTop_toBottomOf="@+id/todoTextLayout">
 
             </com.google.android.material.textfield.TextInputEditText>
 
@@ -174,26 +206,16 @@
                 android:id="@+id/tagsButton"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="20dp"
                 android:text="Tags"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline14"></com.google.android.material.button.MaterialButton>
-
-
-            <CheckBox
-                android:id="@+id/subTasks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CheckBox"
-                app:layout_constraintBottom_toTopOf="@+id/guideline10"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline6" />
+                app:layout_constraintTop_toBottomOf="@id/attachmentList"></com.google.android.material.button.MaterialButton>
 
 
             <com.google.android.material.button.MaterialButton
@@ -203,95 +225,39 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
                 android:text="Color"
-                app:layout_constraintBottom_toTopOf="@+id/guideline13"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline12">
+                app:layout_constraintTop_toBottomOf="@+id/notificationsList">
 
             </com.google.android.material.button.MaterialButton>
-
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/todoTime"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="28dp"
                 android:ems="10"
                 android:text="Time"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                 app:icon="@drawable/ic_access_time_black_24dp"
                 app:iconGravity="textStart"
-                app:layout_constraintBottom_toTopOf="@+id/guideline6"
+                app:layout_constraintBottom_toTopOf="@+id/positionEditText"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.407"
-                app:layout_constraintStart_toEndOf="@+id/todoDate" />
+                app:layout_constraintHorizontal_bias="0.728"
+                app:layout_constraintStart_toEndOf="@+id/todoDate"
+                app:layout_constraintTop_toBottomOf="@+id/todoTextLayout" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="164dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="270dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="824dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline10"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="347dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline11"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="445dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline12"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="582dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline13"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="653dp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline14"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="725dp" />
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:id="@+id/coordinatorLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toBottomOf="@id/tagsButton"
+                app:layout_constraintBottom_toBottomOf="parent"
+                ></androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:id="@+id/coordinatorLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,6 @@
 package com.lp.doit
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,55 +9,30 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.lp.doit.data.Todo
-import com.lp.doit.data.TodosArr
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileOutputStream
-import java.lang.reflect.Type
 
 
-class MainActivity : AppCompatActivity(), ActionBottomDialogFragment.ItemClickListener {
+class MainActivity : AppCompatActivity(),
+    ActionBottomDialogFragment.ItemClickListener {
 
     lateinit var todos : ArrayList<Todo>
 
-   private fun loadTodos() {
-        val fileName : String = "todos.json"
-
-       val file = baseContext.getFileStreamPath(fileName)
-       if (file.exists()) {
-            val bufferedReader: BufferedReader = file.bufferedReader()
-            val jsonString = bufferedReader.use { it.readText() }
-         //   todos = Gson().fromJson(jsonString, TodosArr)
-           todos = ArrayList()
-            Log.i("loadJson", "Loaeded +${todos.size}")
-        } else {
-            Log.i("loadJson", "Not loaded")
-            todos = ArrayList<Todo>()
-            val fos: FileOutputStream = openFileOutput(fileName, Context.MODE_PRIVATE)
-            fos.write("{}".toByteArray())
-            fos.close()
-        }
-
-       if (todos.size == 0) {
-           findViewById<com.google.android.material.textview.MaterialTextView>(R.id.emptySheetBar)?.visibility = View.VISIBLE
-       }
-
-    }
-
     lateinit var bar: BottomAppBar
     lateinit var fab: FloatingActionButton
+    lateinit var todosFile: TodosFile
+    lateinit var gson: Gson
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        gson = Gson()
+        todosFile = TodosFile("todo.json", this)
+        todos = todosFile.loadTodos()
         try {
             this.supportActionBar!!.hide()
         } catch (e: NullPointerException) {
         }
-        loadTodos()
         bar = findViewById<BottomAppBar>(R.id.bar)
         fab = findViewById<FloatingActionButton>(R.id.fab)
         bar.setOnClickListener(View.OnClickListener {
@@ -67,6 +41,15 @@ class MainActivity : AppCompatActivity(), ActionBottomDialogFragment.ItemClickLi
 
         fab.setOnClickListener(View.OnClickListener {
             val i: Intent = Intent(this, AddTodoActivity::class.java)
+            var tags = ArrayList<String>()
+            for (todo in todos){
+                if (todo.tags != null){
+                    for (tag in todo.tags) {
+                        tags.add(tag)
+                    }
+                }
+            }
+            i.putExtra("tags", tags)
             startActivityForResult(i, 1);
         })
 
@@ -80,6 +63,9 @@ class MainActivity : AppCompatActivity(), ActionBottomDialogFragment.ItemClickLi
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
                     Log.i("todo", data.getStringExtra("todo"))
+                    var todo = gson.fromJson(data.getStringExtra("todo"), Todo::class.java)
+                    todosFile.addTodo(gson.fromJson(data.getStringExtra("todo"), Todo::class.java))
+                    todos = todosFile.loadTodos()
                 }
             }
         }

@@ -5,11 +5,7 @@
     android:padding="16dp"
 
     >
-    <RadioGroup
-        android:id="@+id/tagsRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </RadioGroup>
+
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/newTagEditText"
         android:layout_width="match_parent"

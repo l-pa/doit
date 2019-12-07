@@ -11,8 +11,8 @@ data class Todo(
     val subTasks: Array<String>?,
     val position: String?,
     val completeDate: Calendar?,
-    val tags: Array<String>?,
+    val tags: ArrayList<String>,
     val reminders: ArrayList<Notification>?,
-    val attachment: File?,
-    val color: String?
+    val attachment: ArrayList<Attachment>,
+    val color: Int
 )
