@@ -10,7 +10,7 @@ import com.lp.doit.R
 import com.lp.doit.data.Attachment
 
 
-class AttachmentAdapter (val removeEvent: AttachmentPickerListener, val items: ArrayList<Attachment>): RecyclerView.Adapter<AttachmentAdapter.ViewHolder>() {
+class AttachmentAdapter (val removeEvent: RecyclerEvents, val items: ArrayList<Attachment>): RecyclerView.Adapter<AttachmentAdapter.ViewHolder>() {
 
     interface AttachmentPickerListener {
         fun onAttachmentRemove(id: Int)
@@ -35,7 +35,7 @@ class AttachmentAdapter (val removeEvent: AttachmentPickerListener, val items: A
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.attachmentName.text = items[position].filename
         holder.attachmentDeleteButton.setOnClickListener {
-            removeEvent.onAttachmentRemove(position)
+            removeEvent.deleteRecyclerItem(position, items[position])
         }
         if (items[position].type != null) {
             if (items[position].type!!.startsWith("image")) {

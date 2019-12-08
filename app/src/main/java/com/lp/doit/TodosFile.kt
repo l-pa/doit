@@ -12,6 +12,9 @@ import java.lang.reflect.Type
 
 class TodosFile (val fileName: String, val context : Context) {
 
+    private val listType: Type = object : TypeToken<ArrayList<Todo>?>() {}.type
+    private val gson = Gson()
+
     private fun loadFromFile() : String {
         val file = context.getFileStreamPath(fileName)
         if (file.exists()) {
@@ -31,8 +34,6 @@ class TodosFile (val fileName: String, val context : Context) {
     }
 
     fun loadTodos() : ArrayList<Todo> {
-        val listType: Type = object : TypeToken<ArrayList<Todo>?>() {}.type
-        val gson = Gson()
         Log.i("file", " F -> " + loadFromFile())
         val target2: ArrayList<Todo> = gson.fromJson(loadFromFile(), listType)
         Log.i("arraylist", target2.size.toString())
@@ -40,20 +41,14 @@ class TodosFile (val fileName: String, val context : Context) {
     }
 
     fun addTodo(todo: Todo) {
-        val listType = object : TypeToken<ArrayList<Todo>?>() {}.type
         val target: MutableList<Todo> = loadTodos()
         target.add(todo)
-        val gson = Gson()
-        val json = gson.toJson(target, listType)
-        saveToFile(json)
+        saveToFile(gson.toJson(target, listType))
     }
 
     fun removeTodo(todo: Todo) {
-        val listType = object : TypeToken<ArrayList<Todo>?>() {}.type
         val target: MutableList<Todo> = loadTodos()
         target.remove(todo)
-        val gson = Gson()
-        val json = gson.toJson(target, listType)
-        saveToFile(json)
+        saveToFile(gson.toJson(target, listType))
     }
 }

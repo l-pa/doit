@@ -8,11 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lp.doit.R
 import com.lp.doit.data.Notification
 
-class NotificationAdapter (val removeEvent: DatePickerListener, val items: ArrayList<Notification>): RecyclerView.Adapter<NotificationAdapter.ViewHolder>() {
-
-    interface DatePickerListener {
-        fun onItemRemove(id: Int)
-    }
+class NotificationAdapter (val removeEvent: RecyclerEvents, val items: ArrayList<Notification>): RecyclerView.Adapter<NotificationAdapter.ViewHolder>() {
 
     class ViewHolder (view: View) : RecyclerView.ViewHolder(view){
         val notificationTime = view.findViewById<Button>(R.id.notificationText)
@@ -34,7 +30,7 @@ class NotificationAdapter (val removeEvent: DatePickerListener, val items: Array
         holder.notificationTime.text = items[position].timeBefore.toString() + " " + items[position].timeUnit + " before"
 
         holder.notificationDelete.setOnClickListener {
-            removeEvent.onItemRemove(position)
+            removeEvent.deleteRecyclerItem(position, items[position])
         }
     }
 }

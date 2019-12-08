@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import com.lp.doit.adapters.AttachmentAdapter
 import com.lp.doit.adapters.NotificationAdapter
+import com.lp.doit.adapters.RecyclerEvents
+import com.lp.doit.adapters.TagAdapter
 import com.lp.doit.data.Attachment
 import com.lp.doit.data.Notification
 import com.lp.doit.data.Todo
@@ -25,7 +28,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, DateDialog.DatePickerListener, NotificationAdapter.DatePickerListener, AttachmentAdapter.AttachmentPickerListener {
+class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, DateDialog.DatePickerListener, RecyclerEvents {
 
     private lateinit var scrollView: ScrollView
 
@@ -49,9 +52,11 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
     private lateinit var notificationsList: RecyclerView
     private lateinit var attachmentList: RecyclerView
+    private lateinit var tagsList: RecyclerView
 
     private lateinit var notificationAdapter : NotificationAdapter
     private lateinit var attachmentAdapter : AttachmentAdapter
+    private lateinit var tagAdapter : TagAdapter
 
     private var timeSet : Boolean = false
     private var dateSet : Boolean = false
@@ -62,7 +67,6 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
     private var color = ColorSheet.NO_COLOR
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_todo)
@@ -71,7 +75,6 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
             this.supportActionBar!!.hide()
         } catch (e: NullPointerException) {
         }
-
         scrollView = findViewById(R.id.scrollView3)
         todoTitle = findViewById(R.id.todoTitle)
         todoText = findViewById(R.id.todoText)
@@ -83,9 +86,11 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
         notificationsList = findViewById(R.id.notificationsList)
         attachmentList = findViewById(R.id.attachmentList)
+        tagsList = findViewById(R.id.tagsList)
 
         notificationsList.isNestedScrollingEnabled = false
         attachmentList.isNestedScrollingEnabled = false
+        tagsList.isNestedScrollingEnabled = false
 
         addNotificationButton = findViewById(R.id.addNotificationButton)
         addColorButton = findViewById(R.id.colorButton)
@@ -94,6 +99,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
         addButton = findViewById(R.id.saveButton)
         cancelButton = findViewById(R.id.cancelButton)
+
 
         addButton.setOnClickListener{
             if (todoTitle.text.toString().isNullOrEmpty() ) {
@@ -143,9 +149,11 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
             NotificationAdapter(this, notificationArr)
         attachmentAdapter =
             AttachmentAdapter(this, attachmentArr)
+        tagAdapter = TagAdapter(this, tagsArr)
 
         notificationsList.adapter = notificationAdapter
         attachmentList.adapter = attachmentAdapter
+        tagsList.adapter = tagAdapter
 
         addNotificationButton.setOnClickListener {
             val singleItems = arrayOf("15 minutes before", "1 hour before", "1 day before", "Custom")
@@ -156,28 +164,30 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                     dialog, which ->
                     when(which){
                         0 -> {
-                            notificationArr.add(Notification(15, "min"))
+                            notificationArr.add(Notification(15, "minutes"))
                             dialog.cancel()
                         }
                         1 -> {
-                            notificationArr.add(Notification(1, "hour"))
+                            notificationArr.add(Notification(1, "hours"))
                             dialog.cancel()
                         }
                             2 -> {
-                                notificationArr.add(Notification(1, "day"))
+                                notificationArr.add(Notification(1, "days"))
                                 dialog.cancel()
                             }
 
                                 3 -> {
+                                    val layoutInflater = LayoutInflater.from(this)
+                                    val view: View = layoutInflater.inflate(R.layout.new_notification, null)
                                     MaterialAlertDialogBuilder(this)
-                                        .setView(R.layout.new_notification)
+                                        .setView(view)
                                         .setPositiveButton(
                                             "Add",
                                             DialogInterface.OnClickListener { dialog, which ->
                                                 var selectedRadio: String = ""
                                                 val index: Int =
-                                                    findViewById<RadioGroup>(R.id.getNotificationRadioGroup).indexOfChild(
-                                                        findViewById(findViewById<RadioGroup>(R.id.getNotificationRadioGroup).getCheckedRadioButtonId())
+                                                    view.findViewById<RadioGroup>(R.id.getNotificationRadioGroup).indexOfChild(
+                                                        view.findViewById(view.findViewById<RadioGroup>(R.id.getNotificationRadioGroup).getCheckedRadioButtonId())
                                                     )
 
                                                 when (index) {
@@ -188,9 +198,9 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                                                 }
                                                 notificationArr.add(
                                                     Notification(
-                                                        findViewById<TextInputEditText>(
+                                                        view.findViewById<TextInputEditText>(
                                                             R.id.getNotificationTime
-                                                        ).text as Number, selectedRadio
+                                                        ).text.toString().toInt(), selectedRadio
                                                     )
                                                 )
 
@@ -248,8 +258,13 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
         addTagButton.setOnClickListener {
             val tags = intent.getStringArrayListExtra("tags")
+
+            var checkedTags : ArrayList<Boolean>
+
+            // TODO check selected tags
+
             tags.toArray()
-            val cs: Array<CharSequence> =
+            var cs: Array<CharSequence> =
                 tags.toArray(arrayOfNulls<CharSequence>(tags.size))
             MaterialAlertDialogBuilder(this)
                 .setTitle("Tags")
@@ -258,15 +273,20 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                     dialog, which ->
                 })
                 .setNeutralButton("New", DialogInterface.OnClickListener{_dialog, _which ->
+                    val layoutInflater = LayoutInflater.from(this)
+                    val view: View = layoutInflater.inflate(R.layout.tags_selector, null)
+
                     MaterialAlertDialogBuilder(this)
-                        .setView(R.id.newTagEditText)
+                        .setView(view)
                         .setNegativeButton("Cancel", DialogInterface.OnClickListener{
                             dialog, which ->  dialog.dismiss()
                         })
-                        .setPositiveButton("Add", DialogInterface.OnClickListener{dialog, which ->  
+                        .setPositiveButton("Add", DialogInterface.OnClickListener{dialog, which ->
+                            tagsArr.add(view.findViewById<EditText>(R.id.newTagEditText).text.toString())
+                            tags.add(view.findViewById<EditText>(R.id.newTagEditText).text.toString())
+                            tagAdapter.notifyDataSetChanged()
                         })
                         .show()
-
                   })
                 .setNegativeButton("Cancel", DialogInterface.OnClickListener{
                     dialog, which ->  dialog.cancel()
@@ -290,10 +310,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
         timeTodo.set(Calendar.DAY_OF_MONTH, dayOfMonth)
     }
 
-    override fun onItemRemove(id: Int) {
-        notificationArr.removeAt(id)
-        notificationAdapter.notifyDataSetChanged()
-    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -311,8 +328,20 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
         }
     }
 
-    override fun onAttachmentRemove(id: Int) {
-        attachmentArr.removeAt(id)
-        attachmentAdapter.notifyDataSetChanged()
+    override fun deleteRecyclerItem(id: Int, item: Any) {
+        when (item){
+            is Attachment -> {
+                attachmentArr.removeAt(id)
+                attachmentAdapter.notifyDataSetChanged()
+            }
+            is Notification -> {
+                notificationArr.removeAt(id)
+                notificationAdapter.notifyDataSetChanged()
+            }
+
+            is String -> {
+
+            }
+        }
     }
 }
