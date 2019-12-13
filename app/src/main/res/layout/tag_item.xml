@@ -16,12 +16,4 @@
         android:text="X time before"
         app:icon="@drawable/ic_filter_vintage_black_24dp"></com.google.android.material.button.MaterialButton>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/tagDelete"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:icon="@drawable/ic_delete_black_24dp">
-
-    </com.google.android.material.button.MaterialButton>
 </LinearLayout>

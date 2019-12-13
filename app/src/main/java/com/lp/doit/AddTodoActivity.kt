@@ -1,7 +1,10 @@
 package com.lp.doit
 
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ContentResolver
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -10,7 +13,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.common.internal.Constants
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -18,13 +32,13 @@ import com.google.gson.Gson
 import com.lp.doit.adapters.AttachmentAdapter
 import com.lp.doit.adapters.NotificationAdapter
 import com.lp.doit.adapters.RecyclerEvents
-import com.lp.doit.adapters.TagAdapter
 import com.lp.doit.data.Attachment
 import com.lp.doit.data.Notification
 import com.lp.doit.data.Todo
 import dev.sasikanth.colorsheet.ColorSheet
 import java.io.File
 import java.util.*
+import java.util.Arrays.asList
 import kotlin.collections.ArrayList
 
 
@@ -43,7 +57,9 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
     private lateinit var descriptionLayout: com.google.android.material.textfield.TextInputLayout
 
 
-    private var timeTodo : Calendar = Calendar.getInstance()
+    private var timeTodo : Calendar = Calendar.getInstance().clone() as Calendar
+
+    lateinit var geofencingClient: GeofencingClient
 
     private lateinit var todoTitle: EditText
     private lateinit var todoText: EditText
@@ -52,17 +68,22 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
     private lateinit var notificationsList: RecyclerView
     private lateinit var attachmentList: RecyclerView
-    private lateinit var tagsList: RecyclerView
 
     private lateinit var notificationAdapter : NotificationAdapter
     private lateinit var attachmentAdapter : AttachmentAdapter
-    private lateinit var tagAdapter : TagAdapter
 
     private var timeSet : Boolean = false
     private var dateSet : Boolean = false
     private var notificationArr = ArrayList<Notification>();
     private var attachmentArr = ArrayList<Attachment>();
+
     private var tagsArr = ArrayList<String>();
+
+    private lateinit var allTagsFromIntent : ArrayList<String>
+
+    private lateinit var checkedTags : ArrayList<Boolean>
+
+    private lateinit var nPosition : Place
 
 
     private var color = ColorSheet.NO_COLOR
@@ -75,6 +96,35 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
             this.supportActionBar!!.hide()
         } catch (e: NullPointerException) {
         }
+
+        allTagsFromIntent = intent.getStringArrayListExtra("tags")
+        checkedTags = ArrayList()
+
+        geofencingClient = LocationServices.getGeofencingClient(this)
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), "AIzaSyA9xVxa94Iw7m5fq-foAekfJ8agiV_f07M", Locale.ENGLISH);
+        }
+        // Initialize the AutocompleteSupportFragment.
+        val autocompleteFragment =
+            supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment?
+
+        // Specify the types of place data to return.
+        autocompleteFragment!!.setPlaceFields(asList(Place.Field.ID, Place.Field.NAME))
+
+        // Set up a PlaceSelectionListener to handle the response.
+
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+
+            override fun onPlaceSelected(place: Place) { // TODO: Get info about the selected place.
+                nPosition = place
+            }
+
+            override fun onError(status: Status) { // TODO: Handle the error.
+                Log.i("postion", "An error occurred: $status")
+            }
+        })
+
         scrollView = findViewById(R.id.scrollView3)
         todoTitle = findViewById(R.id.todoTitle)
         todoText = findViewById(R.id.todoText)
@@ -86,11 +136,9 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
         notificationsList = findViewById(R.id.notificationsList)
         attachmentList = findViewById(R.id.attachmentList)
-        tagsList = findViewById(R.id.tagsList)
 
         notificationsList.isNestedScrollingEnabled = false
         attachmentList.isNestedScrollingEnabled = false
-        tagsList.isNestedScrollingEnabled = false
 
         addNotificationButton = findViewById(R.id.addNotificationButton)
         addColorButton = findViewById(R.id.colorButton)
@@ -99,6 +147,12 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
         addButton = findViewById(R.id.saveButton)
         cancelButton = findViewById(R.id.cancelButton)
+
+
+        for (i in 0 until allTagsFromIntent.size step 1) {
+            tagsArr.add(allTagsFromIntent[i])
+            checkedTags.add(false)
+        }
 
 
         addButton.setOnClickListener{
@@ -118,8 +172,144 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                 return@setOnClickListener
             }
 
-            val todo = Todo(todoTitle.text.toString(), todoText.text.toString(), Calendar.getInstance().time, null, null, timeTodo, tagsArr, notificationArr, attachmentArr, color)
-            val gson = Gson()
+            val tagsToAdd = ArrayList<String>()
+
+            for (i in 0 until tagsArr.size) {
+                if (checkedTags[i]) {
+                    tagsToAdd.add(tagsArr[i])
+                }
+            }
+
+
+
+            var broadcastID = 0
+
+            for (alert in notificationArr) {
+                Log.i("alert", alert.timeBefore.toString())
+                var alarmMgr: AlarmManager?
+                var alarmIntent: PendingIntent
+                var notificationIntent = Intent(this, Notifications::class.java)
+                notificationIntent.putExtra("name", todoTitle.text.toString())
+                notificationIntent.putExtra("description", todoText.text.toString())
+
+                alarmMgr = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                alarmIntent = notificationIntent.let { intent ->
+
+                    PendingIntent.getBroadcast(this, broadcastID, intent, 0)
+                }
+                broadcastID++
+                when(alert.timeUnit) {
+                    "minutes" -> {
+                        Log.i("notification", alert.timeBefore.toString())
+                        var notificationTime = timeTodo.clone() as Calendar
+                        notificationTime.add(Calendar.MINUTE, (-alert.timeBefore.toInt()))
+                        alarmMgr?.set(
+                            AlarmManager.RTC_WAKEUP,
+                            notificationTime.timeInMillis,
+                            alarmIntent
+                        )
+                    }
+                    "hours" -> {
+                        var notificationTime = timeTodo.clone() as Calendar
+                        notificationTime.add(Calendar.HOUR_OF_DAY, -alert.timeBefore.toInt())
+                        alarmMgr?.set(
+                            AlarmManager.RTC_WAKEUP,
+                            notificationTime.timeInMillis,
+                            alarmIntent
+                        )
+                    }
+
+                    "days" -> {
+                        var notificationTime = timeTodo.clone() as Calendar
+                        notificationTime.add(Calendar.DAY_OF_MONTH, -alert.timeBefore.toInt())
+                        alarmMgr?.set(
+                            AlarmManager.RTC_WAKEUP,
+                            notificationTime.timeInMillis,
+                            alarmIntent
+                        )
+                    }
+                }
+            }
+            if (::nPosition.isInitialized) {
+                nPosition.latLng?.latitude?.let { it1 ->
+                    nPosition.latLng?.longitude?.let { it2 ->
+                        val g = Geofence.Builder()
+                            // Set the request ID of the geofence. This is a string to identify this
+                            // geofence.
+                            .setRequestId(nPosition.name)
+                            .setExpirationDuration(timeTodo.timeInMillis)
+                            // Set the circular region of this geofence.
+                            .setCircularRegion(
+                                it1,
+                                it2,
+                                50f
+                            )
+                            // Set the transition types of interest. Alerts are only generated for these
+                            // transition. We track entry and exit transitions in this sample.
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+
+                            // Create the geofence.
+                            .build()
+
+                        val geofencingRequest = GeofencingRequest.Builder().apply {
+                            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                            addGeofence(g)
+                        }.build()
+
+                        val geofencePendingIntent: PendingIntent by lazy {
+                            val intent = Intent(this, GeofenceNotification::class.java)
+
+                            intent.putExtra("city", nPosition.name)
+
+                            PendingIntent.getBroadcast(this, ++broadcastID, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                        }
+
+                        val geofencingClient = LocationServices.getGeofencingClient(this)
+
+                        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+                            addOnFailureListener {
+                                Toast.makeText(baseContext, "Geofence error", Toast.LENGTH_SHORT).show()
+                            }
+                            addOnSuccessListener {
+                                Toast.makeText(baseContext, "Geofence success", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            }
+            val todo : Todo
+            if (::nPosition.isInitialized) {
+                todo = Todo(
+                    todoTitle.text.toString(),
+                    todoText.text.toString(),
+                    Calendar.getInstance().time,
+                    null,
+                    nPosition.name,
+                    nPosition.latLng?.longitude,
+                    nPosition.latLng?.latitude,
+                    timeTodo,
+                    tagsToAdd,
+                    notificationArr,
+                    attachmentArr,
+                    color
+                )
+            } else {
+                todo = Todo(
+                    todoTitle.text.toString(),
+                    todoText.text.toString(),
+                    Calendar.getInstance().time,
+                    null,
+                    null,
+                    null,
+                    null,
+                    timeTodo,
+                    tagsToAdd,
+                    notificationArr,
+                    attachmentArr,
+                    color
+                )
+            }
+                val gson = Gson()
             val returnIntent = Intent()
             returnIntent.putExtra("todo", gson.toJson(todo))
             setResult(Activity.RESULT_OK, returnIntent)
@@ -149,11 +339,9 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
             NotificationAdapter(this, notificationArr)
         attachmentAdapter =
             AttachmentAdapter(this, attachmentArr)
-        tagAdapter = TagAdapter(this, tagsArr)
 
         notificationsList.adapter = notificationAdapter
         attachmentList.adapter = attachmentAdapter
-        tagsList.adapter = tagAdapter
 
         addNotificationButton.setOnClickListener {
             val singleItems = arrayOf("15 minutes before", "1 hour before", "1 day before", "Custom")
@@ -257,19 +445,25 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
         }
 
         addTagButton.setOnClickListener {
-            val tags = intent.getStringArrayListExtra("tags")
-
-            var checkedTags : ArrayList<Boolean>
 
             // TODO check selected tags
 
-            tags.toArray()
+            var checked = BooleanArray(checkedTags.size)
+
+            for (i in 0 until checkedTags.size step 1) {
+                checked[i] = checkedTags[i]
+            }
+
+            allTagsFromIntent.toArray()
+
             var cs: Array<CharSequence> =
-                tags.toArray(arrayOfNulls<CharSequence>(tags.size))
+                tagsArr.toArray(arrayOfNulls<CharSequence>(tagsArr.size))
             MaterialAlertDialogBuilder(this)
                 .setTitle("Tags")
-                .setMultiChoiceItems(cs, null, null)
-                .setPositiveButton("Add", DialogInterface.OnClickListener{
+                .setMultiChoiceItems(cs, checked, DialogInterface.OnMultiChoiceClickListener{
+                    dialog, which, isChecked ->  checkedTags[which] = isChecked
+                })
+                .setPositiveButton("Ok", DialogInterface.OnClickListener{
                     dialog, which ->
                 })
                 .setNeutralButton("New", DialogInterface.OnClickListener{_dialog, _which ->
@@ -282,9 +476,12 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                             dialog, which ->  dialog.dismiss()
                         })
                         .setPositiveButton("Add", DialogInterface.OnClickListener{dialog, which ->
+                            if (!tagsArr.contains(view.findViewById<EditText>(R.id.newTagEditText).text.toString())) {
                             tagsArr.add(view.findViewById<EditText>(R.id.newTagEditText).text.toString())
-                            tags.add(view.findViewById<EditText>(R.id.newTagEditText).text.toString())
-                            tagAdapter.notifyDataSetChanged()
+                            checkedTags.add(true)
+                            } else {
+                                checkedTags[tagsArr.indexOf(view.findViewById<EditText>(R.id.newTagEditText).text.toString())] = true
+                            }
                         })
                         .show()
                   })
@@ -298,15 +495,16 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
     override fun onTimeSet(view: TimePicker?, hour: Int, minute: Int) {
         todoTime.setText(String.format("%02d:%02d", hour, minute))
         timeSet = true
+        timeTodo.set(Calendar.HOUR_OF_DAY, hour)
         timeTodo.set(Calendar.MINUTE, minute)
-        timeTodo.set(Calendar.HOUR, hour)
+        timeTodo.set(Calendar.SECOND, 0)
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
         todoDate.setText(String.format("%02d.%02d. %04d ", dayOfMonth, month + 1, year))
         dateSet = true
         timeTodo.set(Calendar.YEAR, year)
-        timeTodo.set(Calendar.MONTH, month + 1)
+        timeTodo.set(Calendar.MONTH, month)
         timeTodo.set(Calendar.DAY_OF_MONTH, dayOfMonth)
     }
 
@@ -339,9 +537,6 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                 notificationAdapter.notifyDataSetChanged()
             }
 
-            is String -> {
-
-            }
         }
     }
 }

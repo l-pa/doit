@@ -27,7 +27,7 @@ class TimeDialog : DialogFragment(), TimePickerDialog.OnTimeSetListener {
         return TimePickerDialog(
             activity,
             this,
-            calendar.get(Calendar.HOUR),
+            calendar.get(Calendar.HOUR_OF_DAY),
             calendar.get(Calendar.MINUTE),
             DateFormat.is24HourFormat(context)
         )

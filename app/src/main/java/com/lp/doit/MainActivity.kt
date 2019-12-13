@@ -1,8 +1,12 @@
 package com.lp.doit
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.ClipData
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -14,12 +18,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
+import com.lp.doit.adapters.TagAdapter
 import com.lp.doit.adapters.TodoAdapter
+import com.lp.doit.data.Notification
 import com.lp.doit.data.Todo
 
 
 class MainActivity : AppCompatActivity(),
-    ActionBottomDialogFragment.ItemClickListener, TodoAdapter.TodoListener {
+    ActionBottomDialogFragment.ItemClickListener, TodoAdapter.TodoListener, TagAdapter.ITag {
 
     lateinit var todos : ArrayList<Todo>
 
@@ -35,9 +41,13 @@ class MainActivity : AppCompatActivity(),
 
     lateinit var adapter: TodoAdapter
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Log.i("main", "activity created")
+        Notifications().createNotificationChannel(getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, "Notifications")
 
         nothingText = findViewById(R.id.nothingText)
         nothingImage = findViewById(R.id.nothingImage)
@@ -64,19 +74,17 @@ class MainActivity : AppCompatActivity(),
         adapter = TodoAdapter(this, todos)
         todosList.adapter = adapter
 
-        adapter.notifyDataSetChanged()
-
         fab.setOnClickListener(View.OnClickListener {
             val i: Intent = Intent(this, AddTodoActivity::class.java)
             var tags = ArrayList<String>()
-            for (todo in todos){
+            for (todo in todosFile.loadTodos()){
                 if (todo.tags != null){
                     for (tag in todo.tags) {
                         tags.add(tag)
                     }
                 }
             }
-            i.putExtra("tags", tags)
+            i.putExtra("tags", ArrayList<String>(tags.distinct()))
             startActivityForResult(i, 1);
         })
 
@@ -89,6 +97,8 @@ class MainActivity : AppCompatActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        Log.i("result", "result")
         // Check which request we're responding to
         if (requestCode == 1) {
             // Make sure the request was successful
@@ -97,6 +107,7 @@ class MainActivity : AppCompatActivity(),
                     todosFile.addTodo(gson.fromJson(data.getStringExtra("todo"), Todo::class.java))
                     todos.clear()
                     todos.addAll(todosFile.loadTodos())
+                    adapter.notifyDataSetChanged()
                     nothingImage.visibility = View.GONE
                     nothingText.visibility = View.GONE
                 }
@@ -104,17 +115,14 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    fun showBottomSheet(view: View?) {
+    private fun showBottomSheet(view: View?) {
         val addPhotoBottomDialogFragment =
-            ActionBottomDialogFragment.newInstance()
+            ActionBottomDialogFragment.newInstance(this, todosFile.loadTodos())
         addPhotoBottomDialogFragment.show(
             supportFragmentManager,
             ActionBottomDialogFragment.TAG
         )
-    }
 
-    override fun onItemClick(item: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onItemRemove(id: Int, todo: Todo) {
@@ -129,6 +137,26 @@ class MainActivity : AppCompatActivity(),
 
     override fun onStop() {
         super.onStop()
+    }
 
+    override fun onItemClick(item: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun tagClick(tag: String) {
+        var list = ArrayList<Todo>()
+        list.clear()
+        list.addAll(todosFile.loadTodos().filter { todo -> todo.tags.contains(tag) })
+        todos.clear()
+        todos.addAll(list)
+        adapter.notifyDataSetChanged()
+    }
+
+    override fun tagClick(tag: Int) {
+        if (tag == 0) {
+            todos.clear()
+            todos.addAll(todosFile.loadTodos())
+            adapter.notifyDataSetChanged()
+        }
     }
 }

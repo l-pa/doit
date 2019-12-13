@@ -1,24 +1,31 @@
 package com.lp.doit.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.lp.doit.MainActivity
 import com.lp.doit.R
 import com.lp.doit.data.Attachment
+import com.lp.doit.data.Tag
 
 
-class TagAdapter (val removeEvent: RecyclerEvents, val items: ArrayList<String>): RecyclerView.Adapter<TagAdapter.ViewHolder>() {
+class TagAdapter (val i : ITag, val items: ArrayList<Tag>): RecyclerView.Adapter<TagAdapter.ViewHolder>() {
+
+    interface ITag {
+        fun tagClick(tag : String)
+        fun tagClick(tag : Int)
+    }
 
     class ViewHolder (view: View) : RecyclerView.ViewHolder(view){
-        val tagText = view.findViewById<Button>(R.id.tagText)
-        val tagDelete = view.findViewById<Button>(R.id.tagDelete)
+        val tagName = view.findViewById<Button>(R.id.tagText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
         val v = LayoutInflater.from(parent?.context).inflate(R.layout.tag_item, parent, false)
         return ViewHolder(v)
     }
@@ -28,9 +35,9 @@ class TagAdapter (val removeEvent: RecyclerEvents, val items: ArrayList<String>)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tagText.text = items[position]
-        holder.tagDelete.setOnClickListener {
-            removeEvent.deleteRecyclerItem(position, items[position])
+        holder.tagName.text = items[position].name + " " + items[position].count
+        holder.tagName.setOnClickListener {
+            i.tagClick(items[position].name)
         }
     }
 }
