@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
@@ -15,6 +17,8 @@ import com.lp.doit.AddTodoActivity
 import com.lp.doit.R
 import com.lp.doit.TodoOverview
 import com.lp.doit.data.Todo
+import java.util.*
+import kotlin.collections.ArrayList
 
 class TodoAdapter (val removeEvent: TodoListener, val items: ArrayList<Todo>): RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
 
@@ -29,6 +33,9 @@ class TodoAdapter (val removeEvent: TodoListener, val items: ArrayList<Todo>): R
         val todoDescription = view.findViewById<TextView>(R.id.descriptionText)
         val checkbox = view.findViewById<CheckBox>(R.id.checkBox)
         val layout = view.findViewById<ConstraintLayout>(R.id.todoConstraintLayout)
+        val completeDay = view.findViewById<TextView>(R.id.completeDate)
+        val colorView = view.findViewById<ImageView>(R.id.imageView)
+
 
     }
 
@@ -44,8 +51,10 @@ class TodoAdapter (val removeEvent: TodoListener, val items: ArrayList<Todo>): R
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         Log.i("name", "name " + items[position].name)
         holder.todoText.text = items[position].name
+        holder.colorView.setColorFilter(items[position].color)
         holder.todoDescription.text = items[position].description
-
+        holder.completeDay.text = String.format("%02d.%02d. %04d ", items[position].completeDate?.get(Calendar.DAY_OF_MONTH),  items[position].completeDate?.get(
+            Calendar.MONTH) as Int + 1,  items[position].completeDate?.get(Calendar.YEAR))
         holder.checkbox.setOnCheckedChangeListener{ buttonView, isChecked ->
             if (isChecked) {
                 Log.i("todo", items[position].name)

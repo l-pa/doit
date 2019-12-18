@@ -541,11 +541,12 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
             attachmentArr.clear()
             attachmentArr.addAll(todo.attachment)
             tagsArr = todo.tags!!
+            timeTodo = todo.completeDate
 
             addColorButton.setBackgroundColor(todo.color)
             timeSet = true
             dateSet = true
-
+            color = todo.color
             autocompleteFragment.setText(todo.positionName)
 
             isLoaded = true
