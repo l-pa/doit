@@ -1,5 +1,6 @@
 package com.lp.doit.adapters
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.lp.doit.R
 import com.lp.doit.data.Attachment
+import java.io.File
 
 
 class AttachmentAdapter (val removeEvent: RecyclerEvents, val items: ArrayList<Attachment>): RecyclerView.Adapter<AttachmentAdapter.ViewHolder>() {
@@ -39,10 +41,13 @@ class AttachmentAdapter (val removeEvent: RecyclerEvents, val items: ArrayList<A
         }
         if (items[position].type != null) {
             if (items[position].type!!.startsWith("image")) {
-                holder.attachmentImage.setImageURI(items[position].path)
+                holder.attachmentImage.setImageURI(Uri.parse(items[position].pathUri))
             } else {
                 holder.attachmentImage.visibility = View.GONE
             }
+        }
+        holder.attachmentImage.setOnClickListener {
+            removeEvent.clickRecyclerItem(position, items[position])
         }
     }
 }

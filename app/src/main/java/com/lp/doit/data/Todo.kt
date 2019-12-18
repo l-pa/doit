@@ -1,11 +1,10 @@
 package com.lp.doit.data
 
-import com.google.android.libraries.places.api.model.Place
-import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
 data class Todo(
+    val id: String,
     val name: String,
     val description: String?,
     val dateCreate: Date,

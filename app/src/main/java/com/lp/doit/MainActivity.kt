@@ -1,33 +1,38 @@
 package com.lp.doit
 
 import android.app.Activity
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.ClipData
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.lp.doit.adapters.TagAdapter
 import com.lp.doit.adapters.TodoAdapter
-import com.lp.doit.data.Notification
 import com.lp.doit.data.Todo
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(),
     ActionBottomDialogFragment.ItemClickListener, TodoAdapter.TodoListener, TagAdapter.ITag {
 
     lateinit var todos : ArrayList<Todo>
+
+    lateinit var todosToday : ArrayList<Todo>
+    lateinit var todosWeek : ArrayList<Todo>
+    lateinit var todosLater : ArrayList<Todo>
+
+
 
     lateinit var bar: BottomAppBar
     lateinit var fab: FloatingActionButton
@@ -37,9 +42,15 @@ class MainActivity : AppCompatActivity(),
     lateinit var nothingText: TextView
     lateinit var nothingImage: ImageView
 
+    lateinit var coordinatorView: View
+
     lateinit var todosList: RecyclerView
+    lateinit var weekLisk: RecyclerView
+    lateinit var laterList: RecyclerView
 
     lateinit var adapter: TodoAdapter
+    lateinit var adapterWeek: TodoAdapter
+    lateinit var adapterLater: TodoAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +62,10 @@ class MainActivity : AppCompatActivity(),
 
         nothingText = findViewById(R.id.nothingText)
         nothingImage = findViewById(R.id.nothingImage)
-        todosList = findViewById(R.id.todosList)
+        todosList = findViewById(R.id.todosListToday)
+
+
+        coordinatorView = findViewById(R.id.coordinatorLayoutMain)
 
         gson = Gson()
         todosFile = TodosFile("todo.json", this)
@@ -72,6 +86,7 @@ class MainActivity : AppCompatActivity(),
         }
 
         adapter = TodoAdapter(this, todos)
+
         todosList.adapter = adapter
 
         fab.setOnClickListener(View.OnClickListener {
@@ -87,6 +102,7 @@ class MainActivity : AppCompatActivity(),
             i.putExtra("tags", ArrayList<String>(tags.distinct()))
             startActivityForResult(i, 1);
         })
+
 
     }
 
@@ -128,11 +144,45 @@ class MainActivity : AppCompatActivity(),
     override fun onItemRemove(id: Int, todo: Todo) {
         todos.removeAt(id)
         adapter.notifyDataSetChanged()
+        val removedTodo = todo
         todosFile.removeTodo(todo)
-        if (todos.size == 0) {
+
+        if (todosFile.loadTodos().size == 0) { // TODO
             nothingText.visibility = View.VISIBLE
             nothingImage.visibility = View.VISIBLE
         }
+
+        Snackbar.make(coordinatorView, "Todo was deleted", Snackbar.LENGTH_LONG)
+            .setAction("Restore todo", View.OnClickListener {
+                todosFile.addTodo(removedTodo)
+                var list = ArrayList<Todo>()
+                list.clear()
+                list.addAll(todosFile.loadTodos())
+                todos.clear()
+                todos.addAll(list)
+                adapter.notifyDataSetChanged()
+
+                if (todos.size > 0) {
+                    nothingImage.visibility = View.GONE
+                    nothingText.visibility = View.GONE
+                }
+            })
+            .show();
+    }
+
+    override fun onItemClick(id: Int, todo: Todo) {
+        val i = Intent(this, AddTodoActivity::class.java)
+        i.putExtra("id", todo.id)
+        var tags = ArrayList<String>()
+        for (todo in todosFile.loadTodos()){
+            if (todo.tags != null){
+                for (tag in todo.tags) {
+                    tags.add(tag)
+                }
+            }
+        }
+        i.putExtra("tags", ArrayList<String>(tags.distinct()))
+        startActivityForResult(i, 1)
     }
 
     override fun onStop() {

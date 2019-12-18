@@ -7,13 +7,18 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.common.internal.Constants
@@ -32,8 +37,10 @@ import com.google.gson.Gson
 import com.lp.doit.adapters.AttachmentAdapter
 import com.lp.doit.adapters.NotificationAdapter
 import com.lp.doit.adapters.RecyclerEvents
+import com.lp.doit.adapters.SubtaskAdapter
 import com.lp.doit.data.Attachment
 import com.lp.doit.data.Notification
+import com.lp.doit.data.Subtask
 import com.lp.doit.data.Todo
 import dev.sasikanth.colorsheet.ColorSheet
 import java.io.File
@@ -53,6 +60,9 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
     private lateinit var addTagButton: Button
     private lateinit var attachmentButton: Button
 
+    private lateinit var subtaskButton: Button
+
+
     private lateinit var todoLayout: com.google.android.material.textfield.TextInputLayout
     private lateinit var descriptionLayout: com.google.android.material.textfield.TextInputLayout
 
@@ -69,8 +79,13 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
     private lateinit var notificationsList: RecyclerView
     private lateinit var attachmentList: RecyclerView
 
+    private lateinit var subTasksList: RecyclerView
+
+
     private lateinit var notificationAdapter : NotificationAdapter
     private lateinit var attachmentAdapter : AttachmentAdapter
+    private lateinit var subtaskAdapter : SubtaskAdapter
+
 
     private var timeSet : Boolean = false
     private var dateSet : Boolean = false
@@ -78,12 +93,16 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
     private var attachmentArr = ArrayList<Attachment>();
 
     private var tagsArr = ArrayList<String>();
+    private var subTasksArr = ArrayList<Subtask>();
 
-    private lateinit var allTagsFromIntent : ArrayList<String>
+
+    private lateinit var allTagsFromIntent : java.util.ArrayList<String>
 
     private lateinit var checkedTags : ArrayList<Boolean>
 
     private lateinit var nPosition : Place
+
+    var isLoaded = false
 
 
     private var color = ColorSheet.NO_COLOR
@@ -97,7 +116,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
         } catch (e: NullPointerException) {
         }
 
-        allTagsFromIntent = intent.getStringArrayListExtra("tags")
+        allTagsFromIntent = intent.getStringArrayListExtra("tags") as ArrayList<String>
         checkedTags = ArrayList()
 
         geofencingClient = LocationServices.getGeofencingClient(this)
@@ -137,6 +156,10 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
         notificationsList = findViewById(R.id.notificationsList)
         attachmentList = findViewById(R.id.attachmentList)
 
+        notificationsList.layoutManager = LinearLayoutManager(this)
+        attachmentList.layoutManager = LinearLayoutManager(this)
+
+
         notificationsList.isNestedScrollingEnabled = false
         attachmentList.isNestedScrollingEnabled = false
 
@@ -144,6 +167,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
         addColorButton = findViewById(R.id.colorButton)
         addTagButton = findViewById(R.id.tagsButton)
         attachmentButton = findViewById(R.id.attachmentButton)
+        subTasksList = findViewById(R.id.subTaskRec)
 
         addButton = findViewById(R.id.saveButton)
         cancelButton = findViewById(R.id.cancelButton)
@@ -203,7 +227,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                         Log.i("notification", alert.timeBefore.toString())
                         var notificationTime = timeTodo.clone() as Calendar
                         notificationTime.add(Calendar.MINUTE, (-alert.timeBefore.toInt()))
-                        alarmMgr?.set(
+                        alarmMgr.set(
                             AlarmManager.RTC_WAKEUP,
                             notificationTime.timeInMillis,
                             alarmIntent
@@ -212,7 +236,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                     "hours" -> {
                         var notificationTime = timeTodo.clone() as Calendar
                         notificationTime.add(Calendar.HOUR_OF_DAY, -alert.timeBefore.toInt())
-                        alarmMgr?.set(
+                        alarmMgr.set(
                             AlarmManager.RTC_WAKEUP,
                             notificationTime.timeInMillis,
                             alarmIntent
@@ -222,7 +246,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                     "days" -> {
                         var notificationTime = timeTodo.clone() as Calendar
                         notificationTime.add(Calendar.DAY_OF_MONTH, -alert.timeBefore.toInt())
-                        alarmMgr?.set(
+                        alarmMgr.set(
                             AlarmManager.RTC_WAKEUP,
                             notificationTime.timeInMillis,
                             alarmIntent
@@ -277,9 +301,16 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                     }
                 }
             }
+            var genId = UUID.randomUUID().toString()
+
+            if (isLoaded) {
+                genId = intent.getStringExtra("id")
+            }
+
             val todo : Todo
             if (::nPosition.isInitialized) {
                 todo = Todo(
+                    genId,
                     todoTitle.text.toString(),
                     todoText.text.toString(),
                     Calendar.getInstance().time,
@@ -295,6 +326,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                 )
             } else {
                 todo = Todo(
+                    genId,
                     todoTitle.text.toString(),
                     todoText.text.toString(),
                     Calendar.getInstance().time,
@@ -330,18 +362,23 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
         }
 
         attachmentButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.type = "*/*"
             startActivityForResult(intent, 1)
         }
+
 
         notificationAdapter =
             NotificationAdapter(this, notificationArr)
         attachmentAdapter =
             AttachmentAdapter(this, attachmentArr)
 
+        subtaskAdapter = SubtaskAdapter(this, subTasksArr)
+
+
         notificationsList.adapter = notificationAdapter
         attachmentList.adapter = attachmentAdapter
+        subTasksList.adapter = subtaskAdapter
 
         addNotificationButton.setOnClickListener {
             val singleItems = arrayOf("15 minutes before", "1 hour before", "1 day before", "Custom")
@@ -371,7 +408,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                                         .setView(view)
                                         .setPositiveButton(
                                             "Add",
-                                            DialogInterface.OnClickListener { dialog, which ->
+                                            DialogInterface.OnClickListener { _, _ ->
                                                 var selectedRadio: String = ""
                                                 val index: Int =
                                                     view.findViewById<RadioGroup>(R.id.getNotificationRadioGroup).indexOfChild(
@@ -394,7 +431,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
 
                                                 dialog.cancel()
                                             })
-                                        .setNegativeButton("Close", DialogInterface.OnClickListener{ dialog, which ->
+                                        .setNegativeButton("Close", DialogInterface.OnClickListener{ dialog, _ ->
                                             dialog.cancel()
                                         })
 
@@ -434,7 +471,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
             // R.color.md_300
 
             ColorSheet().colorPicker(
-                colors =  intArrayOf(R.color.md_purple_A700, R.color.md_purple_A700, R.color.md_purple_A700, R.color.md_purple_A700, R.color.md_purple_A700, R.color.md_purple_A700, R.color.md_purple_A700,R.color.md_purple_A700 ,R.color.md_purple_A700, R.color.md_purple_A700),
+                colors =  intArrayOf(resources.getColor(R.color.md_light_blue_300), resources.getColor(R.color.md_amber_300),resources.getColor(R.color.md_lime_300), resources.getColor(R.color.md_deep_purple_300), resources.getColor(R.color.md_red_300)),
                 noColorOption = true,
                 listener = { color ->
                     addColorButton.setBackgroundColor(color)
@@ -490,6 +527,32 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                 })
                 .show()
         }
+
+        val id = intent.extras?.getString("id", "null")
+        if(!id.equals("null")){
+            val todoFile = TodosFile("todo.json", this)
+            val todo: Todo = todoFile.loadTodos().filter { Todo -> Todo.id == id }.get(0)
+            todoTitle.setText(todo.name)
+            todoText.setText(todo.description)
+            todoDate.setText(String.format("%02d.%02d. %04d ", todo.completeDate?.get(Calendar.DAY_OF_MONTH), todo.completeDate?.get(Calendar.MONTH) as Int + 1, todo.completeDate?.get(Calendar.YEAR)))
+            todoTime.setText(String.format("%02d:%02d", todo.completeDate?.get(Calendar.HOUR_OF_DAY), todo.completeDate?.get(Calendar.MINUTE)))
+            notificationArr.clear()
+            notificationArr.addAll(todo.reminders!!)
+            attachmentArr.clear()
+            attachmentArr.addAll(todo.attachment)
+            tagsArr = todo.tags!!
+
+            addColorButton.setBackgroundColor(todo.color)
+            timeSet = true
+            dateSet = true
+
+            autocompleteFragment.setText(todo.positionName)
+
+            isLoaded = true
+            notificationAdapter.notifyDataSetChanged()
+            attachmentAdapter.notifyDataSetChanged()
+        }
+
     }
 
     override fun onTimeSet(view: TimePicker?, hour: Int, minute: Int) {
@@ -518,7 +581,7 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
                     val cR: ContentResolver = this.getContentResolver()
-                    attachmentArr.add(Attachment(data.data, File(data.data?.path).name,
+                    attachmentArr.add(Attachment(data.data.toString(), File(data.data?.path).name,
                         data.data?.let { cR.getType(it) }))
                 }
                 attachmentAdapter.notifyDataSetChanged()
@@ -537,6 +600,19 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                 notificationAdapter.notifyDataSetChanged()
             }
 
+            is Subtask -> {
+                notificationArr.removeAt(id)
+                notificationAdapter.notifyDataSetChanged()
+            }
+
         }
+    }
+
+    override fun clickRecyclerItem(id: Int, item: Any) {
+        val myIntent = Intent(Intent.ACTION_VIEW)
+        myIntent.data = Uri.fromFile(File((item as Attachment).pathUri))
+        val j = Intent.createChooser(myIntent, "Choose an application to open with:")
+        j.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivity(j)
     }
 }

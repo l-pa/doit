@@ -1,8 +1,12 @@
 package com.lp.doit
 
+import android.R.attr
+import android.R.string
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +18,8 @@ import com.google.android.material.textview.MaterialTextView
 import com.lp.doit.adapters.TagAdapter
 import com.lp.doit.data.Tag
 import com.lp.doit.data.Todo
+import java.io.BufferedReader
+import java.io.File
 
 
 class ActionBottomDialogFragment(main : TagAdapter.ITag,todos: ArrayList<Todo>) : BottomSheetDialogFragment(),
@@ -25,6 +31,9 @@ class ActionBottomDialogFragment(main : TagAdapter.ITag,todos: ArrayList<Todo>) 
     private lateinit var allTagsButton : Button
 
     private lateinit var tagClickEvent : TagAdapter.ITag
+
+    private lateinit var exportButton : Button
+    private lateinit var importButton : Button
 
 
     private var tags = ArrayList<Tag>()
@@ -50,6 +59,8 @@ class ActionBottomDialogFragment(main : TagAdapter.ITag,todos: ArrayList<Todo>) 
         nothingText = view!!.findViewById<MaterialTextView>(R.id.emptySheetBar)
         tagRecyclerView = view!!.findViewById<RecyclerView>(R.id.bottomSheetBar)
         allTagsButton = view!!.findViewById<Button>(R.id.allTagsButton)
+        exportButton = view!!.findViewById<Button>(R.id.exportTodos)
+        importButton = view!!.findViewById<Button>(R.id.importTodos)
 
         var tmpTags = ArrayList<String>()
         var tagsInArr = ArrayList<String>()
@@ -78,6 +89,41 @@ class ActionBottomDialogFragment(main : TagAdapter.ITag,todos: ArrayList<Todo>) 
         allTagsButton.setOnClickListener {
             tagClickEvent.tagClick(0)
             dismiss()
+        }
+
+        exportButton.setOnClickListener{
+            val intentShareFile = Intent(Intent.ACTION_SEND)
+            val fileWithinMyDir = File(context?.getFileStreamPath("todo.json")?.toURI())
+
+            if(fileWithinMyDir.exists()) {
+                intentShareFile.setType("application/json");
+                intentShareFile.putExtra(Intent.EXTRA_STREAM, context?.let { it1 -> TodosFile("todo.json", it1).loadFromFile() }
+                );
+
+                intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
+                    "Sharing File...json");
+                intentShareFile.putExtra(Intent.EXTRA_TEXT,             context?.let { it1 -> TodosFile("todo.json", it1).loadFromFile() }
+                );
+
+                startActivity(Intent.createChooser(intentShareFile,             context?.let { it1 -> TodosFile("todo.json", it1).loadFromFile() }
+                ));
+            }
+        }
+
+        importButton.setOnClickListener{
+            val myIntent = Intent(Intent.ACTION_GET_CONTENT, null)
+            myIntent.type = "application/*"
+            startActivityForResult(myIntent, 100)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode === 100 && resultCode == Activity.RESULT_OK) {
+            var f = File(data?.data?.path)
+            val bufferedReader: BufferedReader = f.bufferedReader()
+            context?.let { TodosFile("todo.json", it).import(bufferedReader.use { it.readText() }) }
         }
     }
 

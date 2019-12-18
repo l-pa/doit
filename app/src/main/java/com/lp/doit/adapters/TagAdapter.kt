@@ -23,6 +23,8 @@ class TagAdapter (val i : ITag, val items: ArrayList<Tag>): RecyclerView.Adapter
 
     class ViewHolder (view: View) : RecyclerView.ViewHolder(view){
         val tagName = view.findViewById<Button>(R.id.tagText)
+        val tagCount = view.findViewById<Button>(R.id.tagCount)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,7 +37,8 @@ class TagAdapter (val i : ITag, val items: ArrayList<Tag>): RecyclerView.Adapter
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tagName.text = items[position].name + " " + items[position].count
+        holder.tagName.text = items[position].name
+        holder.tagCount.text = items[position].count.toString()
         holder.tagName.setOnClickListener {
             i.tagClick(items[position].name)
         }

@@ -1,27 +1,35 @@
 package com.lp.doit.adapters
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.lp.doit.AddTodoActivity
 import com.lp.doit.R
-import com.lp.doit.data.Notification
+import com.lp.doit.TodoOverview
 import com.lp.doit.data.Todo
 
 class TodoAdapter (val removeEvent: TodoListener, val items: ArrayList<Todo>): RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
 
     interface TodoListener {
         fun onItemRemove(id: Int, todo: Todo)
+        fun onItemClick(id: Int, todo: Todo)
+
     }
 
     class ViewHolder (view: View) : RecyclerView.ViewHolder(view){
         val todoText = view.findViewById<TextView>(R.id.titleText)
-        val todoDescription = view.findViewById<TextView>(R.id.tagsText)
+        val todoDescription = view.findViewById<TextView>(R.id.descriptionText)
         val checkbox = view.findViewById<CheckBox>(R.id.checkBox)
+        val layout = view.findViewById<ConstraintLayout>(R.id.todoConstraintLayout)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -42,7 +50,12 @@ class TodoAdapter (val removeEvent: TodoListener, val items: ArrayList<Todo>): R
             if (isChecked) {
                 Log.i("todo", items[position].name)
                 removeEvent.onItemRemove(position, items[position])
+                holder.checkbox.isChecked = false
             }
+        }
+
+        holder.layout.setOnClickListener{
+            removeEvent.onItemClick(position, items[position])
         }
     }
 }

@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="8dp">
+    android:padding="32dp"
+    >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bottomSheetBar"
@@ -14,7 +15,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></androidx.recyclerview.widget.RecyclerView>
+        app:layout_constraintTop_toTopOf="parent"
+        ></androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/emptySheetBar"
@@ -22,8 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_margin="100dp"
-        android:text="Create some tags"
+        android:layout_margin="64dp"
+        android:text="No tags"
         app:layout_constraintBottom_toTopOf="@+id/bottomSheetBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,13 +33,34 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/allTagsButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/exportTodos"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bottomSheetBar"
         android:text="All tags"
+        >
+    </com.google.android.material.button.MaterialButton>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/exportTodos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/importTodos"
+        app:layout_constraintTop_toBottomOf="@+id/allTagsButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:text="Export todos"
+        >
+    </com.google.android.material.button.MaterialButton>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/importTodos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/exportTodos"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:text="Import todos"
         >
 
     </com.google.android.material.button.MaterialButton>
