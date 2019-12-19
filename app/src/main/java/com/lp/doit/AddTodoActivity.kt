@@ -204,53 +204,54 @@ class AddTodoActivity : AppCompatActivity(), TimeDialog.TimePickerListener, Date
                 }
             }
 
-
-
             var broadcastID = 0
 
-            for (alert in notificationArr) {
-                Log.i("alert", alert.timeBefore.toString())
-                var alarmMgr: AlarmManager?
-                var alarmIntent: PendingIntent
-                var notificationIntent = Intent(this, Notifications::class.java)
-                notificationIntent.putExtra("name", todoTitle.text.toString())
-                notificationIntent.putExtra("description", todoText.text.toString())
+            if (!isLoaded) {
 
-                alarmMgr = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                alarmIntent = notificationIntent.let { intent ->
+                for (alert in notificationArr) {
+                    Log.i("alert", alert.timeBefore.toString())
+                    var alarmMgr: AlarmManager?
+                    var alarmIntent: PendingIntent
+                    var notificationIntent = Intent(this, Notifications::class.java)
+                    notificationIntent.putExtra("name", todoTitle.text.toString())
+                    notificationIntent.putExtra("description", todoText.text.toString())
 
-                    PendingIntent.getBroadcast(this, broadcastID, intent, 0)
-                }
-                broadcastID++
-                when(alert.timeUnit) {
-                    "minutes" -> {
-                        Log.i("notification", alert.timeBefore.toString())
-                        var notificationTime = timeTodo.clone() as Calendar
-                        notificationTime.add(Calendar.MINUTE, (-alert.timeBefore.toInt()))
-                        alarmMgr.set(
-                            AlarmManager.RTC_WAKEUP,
-                            notificationTime.timeInMillis,
-                            alarmIntent
-                        )
+                    alarmMgr = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    alarmIntent = notificationIntent.let { intent ->
+
+                        PendingIntent.getBroadcast(this, broadcastID, intent, 0)
                     }
-                    "hours" -> {
-                        var notificationTime = timeTodo.clone() as Calendar
-                        notificationTime.add(Calendar.HOUR_OF_DAY, -alert.timeBefore.toInt())
-                        alarmMgr.set(
-                            AlarmManager.RTC_WAKEUP,
-                            notificationTime.timeInMillis,
-                            alarmIntent
-                        )
-                    }
+                    broadcastID++
+                    when (alert.timeUnit) {
+                        "minutes" -> {
+                            Log.i("notification", alert.timeBefore.toString())
+                            var notificationTime = timeTodo.clone() as Calendar
+                            notificationTime.add(Calendar.MINUTE, (-alert.timeBefore.toInt()))
+                            alarmMgr.set(
+                                AlarmManager.RTC_WAKEUP,
+                                notificationTime.timeInMillis,
+                                alarmIntent
+                            )
+                        }
+                        "hours" -> {
+                            var notificationTime = timeTodo.clone() as Calendar
+                            notificationTime.add(Calendar.HOUR_OF_DAY, -alert.timeBefore.toInt())
+                            alarmMgr.set(
+                                AlarmManager.RTC_WAKEUP,
+                                notificationTime.timeInMillis,
+                                alarmIntent
+                            )
+                        }
 
-                    "days" -> {
-                        var notificationTime = timeTodo.clone() as Calendar
-                        notificationTime.add(Calendar.DAY_OF_MONTH, -alert.timeBefore.toInt())
-                        alarmMgr.set(
-                            AlarmManager.RTC_WAKEUP,
-                            notificationTime.timeInMillis,
-                            alarmIntent
-                        )
+                        "days" -> {
+                            var notificationTime = timeTodo.clone() as Calendar
+                            notificationTime.add(Calendar.DAY_OF_MONTH, -alert.timeBefore.toInt())
+                            alarmMgr.set(
+                                AlarmManager.RTC_WAKEUP,
+                                notificationTime.timeInMillis,
+                                alarmIntent
+                            )
+                        }
                     }
                 }
             }

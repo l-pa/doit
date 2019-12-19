@@ -1,6 +1,9 @@
 package com.lp.doit
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -9,6 +12,8 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.reflect.Type
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class TodosFile (val fileName: String, val context : Context) {
@@ -70,6 +75,49 @@ class TodosFile (val fileName: String, val context : Context) {
     fun removeTodo(todo: Todo) {
         val target: MutableList<Todo> = loadTodos()
         target.remove(todo)
+
+
+        var broadcastID = 0
+        for (alert in todo.reminders!!) {
+            broadcastID++
+            Log.i("alert", alert.timeBefore.toString())
+            var alarmMgr: AlarmManager?
+            var alarmIntent: PendingIntent
+            var notificationIntent = Intent(context, Notifications::class.java)
+
+            alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmIntent = notificationIntent.let { intent ->
+
+                PendingIntent.getBroadcast(context, broadcastID, intent, 0)
+            }
+            broadcastID++
+            when (alert.timeUnit) {
+                "minutes" -> {
+                    Log.i("notification", alert.timeBefore.toString())
+                    var notificationTime = todo.completeDate?.clone() as Calendar
+                    notificationTime.add(Calendar.MINUTE, (-alert.timeBefore.toInt()))
+                    alarmMgr.cancel(
+                        alarmIntent
+                    )
+                }
+                "hours" -> {
+                    var notificationTime = alert.timeBefore as Calendar // clone
+                    notificationTime.add(Calendar.HOUR_OF_DAY, -alert.timeBefore.toInt())
+                    alarmMgr.cancel(
+                        alarmIntent
+                    )
+                }
+
+                "days" -> {
+                    var notificationTime = alert.timeBefore as Calendar
+                    notificationTime.add(Calendar.DAY_OF_MONTH, -alert.timeBefore.toInt())
+                    alarmMgr.cancel(
+                        alarmIntent
+                    )
+                }
+            }
+        }
+
         saveToFile(gson.toJson(target, listType))
     }
 
